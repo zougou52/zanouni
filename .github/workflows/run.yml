@@ -1,0 +1,42 @@
+name: Run Start Script
+
+on:
+  workflow_dispatch: # Allows manual triggering via the GitHub Actions tab
+
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Clone Fiujol/android
+        run: |
+          git clone https://github.com/Fiujol/android ./android || true
+          ls -la ./android
+          if [ -f ./android/start.sh ]; then
+            echo "start.sh found in android/"
+            chmod +x ./android/start.sh
+          else
+            echo "Error: start.sh not found in android/"
+            exit 0
+          fi
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git python3
+
+      - name: Run Start Script
+        run: |
+          echo "Current directory: $(pwd)"
+          cd ./android
+          echo "Changed to directory: $(pwd)"
+          ls -la
+          if [ -f start.sh ]; then
+            echo "Running start.sh with argument 8"
+            bash start.sh 8 || { echo "Script failed"; exit 0; }
+          else
+            echo "Error: start.sh not found in android/"
+            exit 0
+          fi
